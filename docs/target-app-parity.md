@@ -195,13 +195,13 @@ Features row of the dimension table keeps ~62% until the next full re-measure). 
 | Media | 4 | 67% | ~60% | 8–14 | WMA/WMV decode, record audio/screen, 3-D models and stock content, playback options lost on PPTX round trip (#74) | [file-format-parity.md](file-format-parity.md) |
 | Transitions | 4 | 100% | ~80% | 4–8 | 3-D transitions approximated in 2-D | [animation-parity.md](animation-parity.md) |
 | Animations | 6 | 85% | ~65% | 10–16 | 64 of PowerPoint's ~190 effects, rewind lost on save (#77) | [animation-parity.md](animation-parity.md) |
-| Slide show and presenter view | 9 | 71% | ~60% | 10–16 | Second-display placement, laser from presenter view, recording, subtitles, ink depth | [slideshow-parity.md](slideshow-parity.md) |
+| Slide show and presenter view | 8 | 71% | ~60% | 10–16 | Second-display placement, laser from presenter view, recording, subtitles, ink depth | [slideshow-parity.md](slideshow-parity.md) |
 | Review | 3 | 70% | ~45% | 8–14 | Compare depth, version history, real spelling dictionaries | [file-format-parity.md](file-format-parity.md) |
 | Draw (ink) | 2 | 50% | ~30% | 5–9 | Pen tilt, ink to math, lasso, ink to shape/text depth | [hardware-parity.md](hardware-parity.md) |
 | Undo and clipboard | 3 | 100% | ~75% | 3–5 | Image paste (#53) | [ui-parity.md](ui-parity.md) |
 | Automation ✱ | — | 100% | ahead | 0 | | [mcp.md](mcp.md) |
 | Platforms ✱ | — | 67% | ~80% | see platforms | | [ROADMAP.md](../ROADMAP.md) |
-| **Total (feature areas)** | 111 | **84%** | **~62%** | **~140–240** | | |
+| **Total (feature areas)** | 110 | **84%** | **~62%** | **~140–240** | | |
 
 ## What works today (evidence)
 
@@ -289,7 +289,7 @@ scored done (16 open issues).
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-29 | trivial | Slide show: See All Slides gains a P1 done row (every slide, scrollable, section tabs). The area moves 68 → 71% and its feature count 8 → 9; headline breadth stays 84% |
+| 2026-10-29 | trivial | Slide show: See All Slides gains a P1 done row (every slide, scrollable, section tabs). The area moves 68 → 71%; its reliance weight stays 8 and headline breadth stays 84% |
 | 2026-10-22 | trivial | Animations shortfall: preview from the selected effect (Play From) is in. Percentages unchanged |
 | 2026-10-16 | trivial | Arrange shortfall: Align to Slide and Align Selected Objects are in the Align menu. Percentages unchanged |
 | 2026-10-14 | minor | Community PR wave folded: one headline breadth row (84% over 191 features after `cargo xtask parity`; duplicate checklist rows removed), one row per feature area with the latest breadth and shortfalls, one Themes / Slide show / Views / Review / Automation bullet each (320 engine commands). SmartArt ready ~35% (Text Pane, 6e40335) moves the area mean to 62.8%; dimension and headline percentages unchanged |
