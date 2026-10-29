@@ -688,6 +688,146 @@ fn the_presenter_grid_can_stay_open_after_picking_a_slide() {
     assert!(show.presenter_grid, "on keeps the grid open for the next jump");
 }
 
+/// Presenter View keeps a section rail beside the slide, next slide and notes; a section unfolds
+/// its slides without changing what the audience sees, and picking a slide displays it.
+#[test]
+fn presenter_section_rail_unfolds_slides_without_changing_the_show() {
+    use egui_kittest::kittest::Queryable;
+
+    let mut session = deckcraft_engine::Session::with_new();
+    for _ in 0..11 {
+        session.execute("slide.new", &json!({})).unwrap();
+    }
+    session.execute("section.add", &json!({"name": "Intro", "at": 0})).unwrap();
+    session.execute("section.add", &json!({"name": "Demo", "at": 4})).unwrap();
+    session.execute("section.add", &json!({"name": "Questions", "at": 9})).unwrap();
+    let doc = session.active().unwrap().doc.clone();
+    let show = Show::new(&doc, 0, false, true);
+    let mut harness = egui_kittest::Harness::builder().with_size(vec2(1100.0, 700.0)).build_ui_state(
+        |ui, (doc, show, keep): &mut (std::sync::Arc<Presentation>, Show, bool)| {
+            let now = ui.input(|i| i.time);
+            presenter_window(ui.ctx(), show, doc, now, keep);
+        },
+        (doc, show, true),
+    );
+    harness.run_steps(2);
+    assert!(harness.query_by_label("Sections").is_some(), "the rail is visible");
+    harness.get_by_label_contains("Demo (5)").click();
+    harness.run_steps(2);
+    assert_eq!(harness.state().1.state.slide, 0, "the section only unfolds; the show does not move");
+    assert_eq!(harness.state().1.presenter_sections_open, vec![crate::sections::GridFilter::Section(1)]);
+    assert!(harness.query_by_label("Slide 5").is_some(), "the section lists its first slide");
+    assert!(!harness.state().1.rail_thumbs.is_empty(), "the section draws slide previews");
+    harness.get_by_label("2 per row").click();
+    harness.run_steps(2);
+    assert_eq!(harness.state().1.presenter_section_cols, 1, "one preview per row");
+    harness.get_by_label("1 per row").click();
+    harness.run_steps(2);
+    assert_eq!(harness.state().1.presenter_section_cols, 2, "two previews per row");
+    harness.get_by_label("Slide 5").click();
+    harness.run_steps(2);
+    assert_eq!(harness.state().1.state.slide, 4, "picking a slide displays it");
+    harness.get_by_label_contains("Demo (5)").click();
+    harness.run_steps(2);
+    assert!(harness.query_by_label("Slide 5").is_none(), "the section folds shut");
+    assert_eq!(harness.state().1.state.slide, 4, "folding a section leaves the show alone");
+}
+
+/// The rail is capped at a third of the window and never squeezes the slide and notes.
+#[test]
+fn the_presenter_section_rail_width_clamps_to_a_third_and_keeps_content_room() {
+    use super::presenter::{section_rail_max, section_rail_width};
+    assert_eq!(section_rail_width(208.0, 0, 1100.0), 0.0, "no sections, no rail");
+    assert_eq!(section_rail_width(208.0, 3, 1100.0), 208.0);
+    assert!((section_rail_max(1100.0) - 1100.0 / 3.0).abs() < 0.01);
+    assert_eq!(section_rail_width(1000.0, 3, 1100.0), section_rail_max(1100.0), "never wider than a third");
+    assert_eq!(section_rail_width(208.0, 3, 400.0), 68.0, "the content keeps its room");
+    assert_eq!(section_rail_width(0.0, 3, 1100.0), 0.0, "fully collapsed");
+}
+
+/// The divider between the rail and the slide is a drag handle; a click collapses or restores it.
+#[test]
+fn the_presenter_section_rail_resizes_and_collapses_from_its_grip() {
+    use egui_kittest::kittest::Queryable;
+
+    let mut session = deckcraft_engine::Session::with_new();
+    for _ in 0..5 {
+        session.execute("slide.new", &json!({})).unwrap();
+    }
+    session.execute("section.add", &json!({"name": "Intro", "at": 0})).unwrap();
+    session.execute("section.add", &json!({"name": "Demo", "at": 3})).unwrap();
+    let doc = session.active().unwrap().doc.clone();
+    let show = Show::new(&doc, 0, false, true);
+    let mut harness = egui_kittest::Harness::builder().with_size(vec2(1100.0, 700.0)).build_ui_state(
+        |ui, (doc, show, keep): &mut (std::sync::Arc<Presentation>, Show, bool)| {
+            let now = ui.input(|i| i.time);
+            presenter_window(ui.ctx(), show, doc, now, keep);
+        },
+        (doc, show, true),
+    );
+    harness.run_steps(2);
+    let start = harness.state().1.presenter_rail_w;
+    assert_eq!(start, 208.0);
+    let handle = harness.get_by_label("Resize sections panel").rect().center();
+    harness.hover_at(handle);
+    harness.run_steps(1);
+    harness.drag_at(handle);
+    harness.run_steps(1);
+    harness.hover_at(pos2(handle.x + 80.0, handle.y));
+    harness.run_steps(1);
+    harness.drop_at(pos2(handle.x + 80.0, handle.y));
+    harness.run_steps(1);
+    assert!(harness.state().1.presenter_rail_w > start, "dragging right widens the rail");
+
+    let handle = harness.get_by_label("Resize sections panel").rect().center();
+    harness.drag_at(handle);
+    harness.run_steps(1);
+    harness.hover_at(pos2(0.0, handle.y));
+    harness.run_steps(1);
+    harness.drop_at(pos2(0.0, handle.y));
+    harness.run_steps(1);
+    assert_eq!(harness.state().1.presenter_rail_w, 0.0, "dragging to the edge hides the rail");
+    harness.get_by_label("Resize sections panel").click();
+    harness.run_steps(1);
+    assert!(harness.state().1.presenter_rail_w > 0.0, "the grip restores the rail");
+}
+
+/// Picking a slide in the rail counts as picking a slide elsewhere: the grid closes unless
+/// Keep All slides open is on, in which case it stays up.
+#[test]
+fn the_presenter_section_rail_follows_keep_all_slides_open() {
+    use egui_kittest::kittest::Queryable;
+
+    let mut session = deckcraft_engine::Session::with_new();
+    for _ in 0..5 {
+        session.execute("slide.new", &json!({})).unwrap();
+    }
+    session.execute("section.add", &json!({"name": "Intro", "at": 0})).unwrap();
+    session.execute("section.add", &json!({"name": "Demo", "at": 3})).unwrap();
+    let doc = session.active().unwrap().doc.clone();
+    for (stay, grid_stays) in [(false, false), (true, true)] {
+        let mut show = Show::new(&doc, 0, false, true);
+        show.presenter_grid = true;
+        show.presenter_grid_stay = stay;
+        let mut harness = egui_kittest::Harness::builder().with_size(vec2(1100.0, 700.0)).build_ui_state(
+            |ui, (doc, show, keep): &mut (std::sync::Arc<Presentation>, Show, bool)| {
+                let now = ui.input(|i| i.time);
+                presenter_window(ui.ctx(), show, doc, now, keep);
+            },
+            (doc.clone(), show, true),
+        );
+        harness.run_steps(2);
+        // The rail and the grid share a label; the rail comes first in the tree.
+        harness.get_all_by_label_contains("Demo (3)").next().expect("a section button").click();
+        harness.run_steps(2);
+        assert_eq!(harness.state().1.state.slide, 0, "the section only unfolds");
+        harness.get_by_label("Slide 4").click();
+        harness.run_steps(2);
+        assert_eq!(harness.state().1.state.slide, 3, "the slide picked in the rail");
+        assert_eq!(harness.state().1.presenter_grid, grid_stays, "keep All slides open decides");
+    }
+}
+
 /// Opening the grid from a section keeps that section selected; clicking another tab filters,
 /// and clicking a thumbnail jumps to its global slide and closes the grid.
 #[test]

@@ -22,7 +22,7 @@ mod zoom;
 
 #[cfg(test)]
 use media::{on_screen, pointer_on_media_bar, shown_slide_rect, slide_media_bars};
-use presenter::{NOTES_DEFAULT, PresenterTimer};
+use presenter::{DEFAULT_RAIL_W, NOTES_DEFAULT, PresenterTimer};
 #[cfg(test)]
 use presenter::{NOTES_MAX, NOTES_MIN, NOTES_STEP, format_elapsed, presenter_notes, presenter_window, wall_clock};
 #[cfg(test)]
@@ -67,6 +67,14 @@ pub struct Show {
     /// Keep the Presenter View grid open after choosing a slide, so the presenter can jump again
     /// without reopening it. Off restores the classic presenter view on the next pick.
     pub presenter_grid_stay: bool,
+    /// Section groups the Presenter View rail has unfolded to list their slides.
+    pub presenter_sections_open: Vec<GridFilter>,
+    /// How many slide previews the unfolded rail shows per row (1 or 2).
+    pub presenter_section_cols: usize,
+    /// The rail's width in points: 0 hides it, and it never exceeds a third of the window.
+    pub presenter_rail_w: f32,
+    /// The width the rail returns to after a click collapses it.
+    pub presenter_rail_last_w: f32,
     /// Which part of the deck the grid shows (`All`, a section, or the slides outside every section).
     pub grid_filter: GridFilter,
     /// The grid's vertical scroll offset, in points, clamped to its content on every frame.
@@ -75,6 +83,9 @@ pub struct Show {
     pub zoom_arm: bool,
     zoom: Option<Zoom>,
     thumbs: Vec<(usize, TextureHandle)>,
+    /// The section rail's own small previews, kept apart from the grid's thumbnails so opening
+    /// one never evicts the other.
+    rail_thumbs: Vec<(usize, TextureHandle)>,
     pen: bool,
     /// A dot that follows the pointer and leaves no ink (`Cmd/Ctrl+L`).
     laser: bool,
@@ -233,11 +244,16 @@ impl Show {
             grid: false,
             presenter_grid: false,
             presenter_grid_stay: false,
+            presenter_sections_open: vec![],
+            presenter_section_cols: 2,
+            presenter_rail_w: DEFAULT_RAIL_W,
+            presenter_rail_last_w: DEFAULT_RAIL_W,
             grid_filter: GridFilter::All,
             grid_scroll: 0.0,
             zoom_arm: false,
             zoom: None,
             thumbs: vec![],
+            rail_thumbs: vec![],
             pen: false,
             laser: false,
             strokes: vec![],

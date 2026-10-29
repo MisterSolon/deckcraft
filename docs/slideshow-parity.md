@@ -1,6 +1,6 @@
 # Slide show and presenter view: parity with PowerPoint
 
-> **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-29 · **Change:** minor (See All Slides shows every slide, scrollable, with section tabs and the current section selected; the 48-slide cap is gone; breadth 71%; previous: minor, Ctrl+wheel zoom, #1286; previous: major, community PR wave 2026-10-14: interactive decks, laser pointer, See All Slides and zoom, go-to-slide number, custom show playback, presenter timer, clock, notes size and keyboard, Show Media Controls, swipe; duplicated rows and headers folded; previous: major, created) · **Target:** Microsoft PowerPoint for Mac 16.113 (Microsoft 365)
+> **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-30 · **Change:** minor (See All Slides shows every slide, scrollable, with section tabs and the current section selected; Presenter View's section rail resizes from hidden to a third of the window and unfolds slide previews, one or two per row; the 48-slide cap is gone; breadth 71%; previous: minor, Ctrl+wheel zoom, #1286; previous: major, community PR wave 2026-10-14: interactive decks, laser pointer, See All Slides and zoom, go-to-slide number, custom show playback, presenter timer, clock, notes size and keyboard, Show Media Controls, swipe; duplicated rows and headers folded; previous: major, created) · **Target:** Microsoft PowerPoint for Mac 16.113 (Microsoft 365)
 
 Presenting is the job PowerPoint is hired for. This doc covers the show window, presenter view,
 rehearsal and recording. Transition and animation playback are in
@@ -42,6 +42,7 @@ ready** (estimated), **10–16 h** to parity.
 | Feature | PowerPoint | DeckCraft | Notes |
 |---|---|---|---|
 | Separate presenter window with current slide, next slide, notes | yes | yes (an egui viewport, 1100×700); the notes keep their bullets, numbers, indents and bold/italic, as in the notes pane | |
+| Section rail in Presenter View (DeckCraft extra) | no | yes: a resizable list of sections with counts beside the slide and notes; the current section is highlighted; a section unfolds its slide previews (one or two per row, chosen with a toggle), and clicking one displays it. The divider drags from hidden to a third of the window, and a click on its grip hides or restores it | An addition, not a PowerPoint parity row. Clicking a section never changes the audience slide; it stays beside All Slides and follows **Keep All slides open** after a preview pick. The slide and notes keep their minimum room |
 | Elapsed timer | yes | yes | |
 | Pause / reset timer, clock | yes | yes: Pause/Resume and Reset in presenter view (T pauses, R resets); the clock is local time, `--:--` where there is no clock | Pausing the timer does not pause the show, animations or rehearsal |
 | Slide counter, previous/next/end buttons | yes | yes | |
@@ -79,7 +80,7 @@ Reading View in a window with navigation: present (checklist row done).
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-29 | minor | See All Slides no longer stops at 48 slides: the grid scrolls with readable thumbnails, renders only the cells in view, and filters by section with tabs (All slides / section / Other slides). The current slide's section is selected; the same grid works in Presenter View, where **Keep All slides open** keeps it up for the next jump. Checklist breadth 68 → 71% |
+| 2026-10-29 | minor | See All Slides no longer stops at 48 slides: the grid scrolls with readable thumbnails, renders only the cells in view, and filters by section with tabs (All slides / section / Other slides). The current slide's section is selected; the same grid works in Presenter View, where **Keep All slides open** keeps it up for the next jump. Presenter View also lists sections in a permanent rail beside the slide and notes. Checklist breadth 68 → 71% |
 | 2026-10-22 | minor | See All Slides from presenter view opens in presenter view, not on the audience screen (#1130) |
 | 2026-10-14 | trivial | Community PR wave folded: one media playback row, the presenter pen/laser row matches the laser that exists, estimates keep only the open work (~9–16 h); checklist breadth 68% |
 | 2026-10-13 | minor | Click handling for interactive decks: triggers, per-slide state kept across visits, visible-shape hit testing with hand cursor, advance on click |
