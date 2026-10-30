@@ -80,6 +80,7 @@ Reading View in a window with navigation: present (checklist row done).
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-30 | minor | Presenter View's section rail becomes resizable from hidden to a third of the window (or a narrow strip) and unfolds slide previews, one or two per row; clicking a section never changes the audience slide. Checklist breadth stays 71% |
 | 2026-10-29 | minor | See All Slides no longer stops at 48 slides: the grid scrolls with readable thumbnails, renders only the cells in view, and filters by section with tabs (All slides / section / Other slides). The current slide's section is selected; the same grid works in Presenter View, where **Keep All slides open** keeps it up for the next jump. Presenter View also lists sections in a permanent rail beside the slide and notes. Checklist breadth 68 → 71% |
 | 2026-10-22 | minor | See All Slides from presenter view opens in presenter view, not on the audience screen (#1130) |
 | 2026-10-14 | trivial | Community PR wave folded: one media playback row, the presenter pen/laser row matches the laser that exists, estimates keep only the open work (~9–16 h); checklist breadth 68% |
